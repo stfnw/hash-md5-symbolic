@@ -181,11 +181,11 @@ class MD5:
 
         if len(input) >= partLen:
             self.buffer[index : index + partLen] = input[:partLen]
-            self.transform(self.buffer)
+            self.state = transform(self.state, self.buffer)
 
             i = partLen
             while i + 63 < len(input):
-                self.transform(input[i : i + 64])
+                self.state = transform(self.state, input[i : i + 64])
                 i += 64
 
             index = 0
@@ -194,90 +194,6 @@ class MD5:
             i = 0
 
         self.buffer[index : index + len(input) - i] = input[i : len(input)]
-
-    def transform(self, block: list[U8]) -> None:
-        assert len(block) == 64, f"Block has length f{len(block)}"
-
-        a, b, c, d = self.state
-
-        x = decode(block)
-
-        # Round 1
-        a = FF(a, b, c, d, x[0], S11, 0xD76AA478)  #   1
-        d = FF(d, a, b, c, x[1], S12, 0xE8C7B756)  #   2
-        c = FF(c, d, a, b, x[2], S13, 0x242070DB)  #   3
-        b = FF(b, c, d, a, x[3], S14, 0xC1BDCEEE)  #   4
-        a = FF(a, b, c, d, x[4], S11, 0xF57C0FAF)  #   5
-        d = FF(d, a, b, c, x[5], S12, 0x4787C62A)  #   6
-        c = FF(c, d, a, b, x[6], S13, 0xA8304613)  #   7
-        b = FF(b, c, d, a, x[7], S14, 0xFD469501)  #   8
-        a = FF(a, b, c, d, x[8], S11, 0x698098D8)  #   9
-        d = FF(d, a, b, c, x[9], S12, 0x8B44F7AF)  #  10
-        c = FF(c, d, a, b, x[10], S13, 0xFFFF5BB1)  # 11
-        b = FF(b, c, d, a, x[11], S14, 0x895CD7BE)  # 12
-        a = FF(a, b, c, d, x[12], S11, 0x6B901122)  # 13
-        d = FF(d, a, b, c, x[13], S12, 0xFD987193)  # 14
-        c = FF(c, d, a, b, x[14], S13, 0xA679438E)  # 15
-        b = FF(b, c, d, a, x[15], S14, 0x49B40821)  # 16
-
-        # Round 2
-        a = GG(a, b, c, d, x[1], S21, 0xF61E2562)  #  17
-        d = GG(d, a, b, c, x[6], S22, 0xC040B340)  #  18
-        c = GG(c, d, a, b, x[11], S23, 0x265E5A51)  # 19
-        b = GG(b, c, d, a, x[0], S24, 0xE9B6C7AA)  #  20
-        a = GG(a, b, c, d, x[5], S21, 0xD62F105D)  #  21
-        d = GG(d, a, b, c, x[10], S22, 0x2441453)  #  22
-        c = GG(c, d, a, b, x[15], S23, 0xD8A1E681)  # 23
-        b = GG(b, c, d, a, x[4], S24, 0xE7D3FBC8)  #  24
-        a = GG(a, b, c, d, x[9], S21, 0x21E1CDE6)  #  25
-        d = GG(d, a, b, c, x[14], S22, 0xC33707D6)  # 26
-        c = GG(c, d, a, b, x[3], S23, 0xF4D50D87)  #  27
-        b = GG(b, c, d, a, x[8], S24, 0x455A14ED)  #  28
-        a = GG(a, b, c, d, x[13], S21, 0xA9E3E905)  # 29
-        d = GG(d, a, b, c, x[2], S22, 0xFCEFA3F8)  #  30
-        c = GG(c, d, a, b, x[7], S23, 0x676F02D9)  #  31
-        b = GG(b, c, d, a, x[12], S24, 0x8D2A4C8A)  # 32
-
-        # Round 3
-        a = HH(a, b, c, d, x[5], S31, 0xFFFA3942)  #  33
-        d = HH(d, a, b, c, x[8], S32, 0x8771F681)  #  34
-        c = HH(c, d, a, b, x[11], S33, 0x6D9D6122)  # 35
-        b = HH(b, c, d, a, x[14], S34, 0xFDE5380C)  # 36
-        a = HH(a, b, c, d, x[1], S31, 0xA4BEEA44)  #  37
-        d = HH(d, a, b, c, x[4], S32, 0x4BDECFA9)  #  38
-        c = HH(c, d, a, b, x[7], S33, 0xF6BB4B60)  #  39
-        b = HH(b, c, d, a, x[10], S34, 0xBEBFBC70)  # 40
-        a = HH(a, b, c, d, x[13], S31, 0x289B7EC6)  # 41
-        d = HH(d, a, b, c, x[0], S32, 0xEAA127FA)  #  42
-        c = HH(c, d, a, b, x[3], S33, 0xD4EF3085)  #  43
-        b = HH(b, c, d, a, x[6], S34, 0x4881D05)  #   44
-        a = HH(a, b, c, d, x[9], S31, 0xD9D4D039)  #  45
-        d = HH(d, a, b, c, x[12], S32, 0xE6DB99E5)  # 46
-        c = HH(c, d, a, b, x[15], S33, 0x1FA27CF8)  # 47
-        b = HH(b, c, d, a, x[2], S34, 0xC4AC5665)  #  48
-
-        # Round 4
-        a = II(a, b, c, d, x[0], S41, 0xF4292244)  #  49
-        d = II(d, a, b, c, x[7], S42, 0x432AFF97)  #  50
-        c = II(c, d, a, b, x[14], S43, 0xAB9423A7)  # 51
-        b = II(b, c, d, a, x[5], S44, 0xFC93A039)  #  52
-        a = II(a, b, c, d, x[12], S41, 0x655B59C3)  # 53
-        d = II(d, a, b, c, x[3], S42, 0x8F0CCC92)  #  54
-        c = II(c, d, a, b, x[10], S43, 0xFFEFF47D)  # 55
-        b = II(b, c, d, a, x[1], S44, 0x85845DD1)  #  56
-        a = II(a, b, c, d, x[8], S41, 0x6FA87E4F)  #  57
-        d = II(d, a, b, c, x[15], S42, 0xFE2CE6E0)  # 58
-        c = II(c, d, a, b, x[6], S43, 0xA3014314)  #  59
-        b = II(b, c, d, a, x[13], S44, 0x4E0811A1)  # 60
-        a = II(a, b, c, d, x[4], S41, 0xF7537E82)  #  61
-        d = II(d, a, b, c, x[11], S42, 0xBD3AF235)  # 62
-        c = II(c, d, a, b, x[2], S43, 0x2AD7D2BB)  #  63
-        b = II(b, c, d, a, x[9], S44, 0xEB86D391)  #  64
-
-        self.state[0] += a
-        self.state[1] += b
-        self.state[2] += c
-        self.state[3] += d
 
     def final(self) -> list[U8]:
         bits = encode(self.count)
@@ -323,6 +239,89 @@ def decode(input: list[U8]) -> list[U32]:
         i += 1
 
     return res
+
+
+def transform(state: list[U32], block: list[U8]) -> list[U32]:
+    assert len(state) == 4, f"State has length f{len(block)}"
+    assert len(block) == 64, f"Block has length f{len(block)}"
+
+    a, b, c, d = state
+
+    x = decode(block)
+
+    # Round 1
+    a = FF(a, b, c, d, x[0], S11, 0xD76AA478)  #   1
+    d = FF(d, a, b, c, x[1], S12, 0xE8C7B756)  #   2
+    c = FF(c, d, a, b, x[2], S13, 0x242070DB)  #   3
+    b = FF(b, c, d, a, x[3], S14, 0xC1BDCEEE)  #   4
+    a = FF(a, b, c, d, x[4], S11, 0xF57C0FAF)  #   5
+    d = FF(d, a, b, c, x[5], S12, 0x4787C62A)  #   6
+    c = FF(c, d, a, b, x[6], S13, 0xA8304613)  #   7
+    b = FF(b, c, d, a, x[7], S14, 0xFD469501)  #   8
+    a = FF(a, b, c, d, x[8], S11, 0x698098D8)  #   9
+    d = FF(d, a, b, c, x[9], S12, 0x8B44F7AF)  #  10
+    c = FF(c, d, a, b, x[10], S13, 0xFFFF5BB1)  # 11
+    b = FF(b, c, d, a, x[11], S14, 0x895CD7BE)  # 12
+    a = FF(a, b, c, d, x[12], S11, 0x6B901122)  # 13
+    d = FF(d, a, b, c, x[13], S12, 0xFD987193)  # 14
+    c = FF(c, d, a, b, x[14], S13, 0xA679438E)  # 15
+    b = FF(b, c, d, a, x[15], S14, 0x49B40821)  # 16
+
+    # Round 2
+    a = GG(a, b, c, d, x[1], S21, 0xF61E2562)  #  17
+    d = GG(d, a, b, c, x[6], S22, 0xC040B340)  #  18
+    c = GG(c, d, a, b, x[11], S23, 0x265E5A51)  # 19
+    b = GG(b, c, d, a, x[0], S24, 0xE9B6C7AA)  #  20
+    a = GG(a, b, c, d, x[5], S21, 0xD62F105D)  #  21
+    d = GG(d, a, b, c, x[10], S22, 0x2441453)  #  22
+    c = GG(c, d, a, b, x[15], S23, 0xD8A1E681)  # 23
+    b = GG(b, c, d, a, x[4], S24, 0xE7D3FBC8)  #  24
+    a = GG(a, b, c, d, x[9], S21, 0x21E1CDE6)  #  25
+    d = GG(d, a, b, c, x[14], S22, 0xC33707D6)  # 26
+    c = GG(c, d, a, b, x[3], S23, 0xF4D50D87)  #  27
+    b = GG(b, c, d, a, x[8], S24, 0x455A14ED)  #  28
+    a = GG(a, b, c, d, x[13], S21, 0xA9E3E905)  # 29
+    d = GG(d, a, b, c, x[2], S22, 0xFCEFA3F8)  #  30
+    c = GG(c, d, a, b, x[7], S23, 0x676F02D9)  #  31
+    b = GG(b, c, d, a, x[12], S24, 0x8D2A4C8A)  # 32
+
+    # Round 3
+    a = HH(a, b, c, d, x[5], S31, 0xFFFA3942)  #  33
+    d = HH(d, a, b, c, x[8], S32, 0x8771F681)  #  34
+    c = HH(c, d, a, b, x[11], S33, 0x6D9D6122)  # 35
+    b = HH(b, c, d, a, x[14], S34, 0xFDE5380C)  # 36
+    a = HH(a, b, c, d, x[1], S31, 0xA4BEEA44)  #  37
+    d = HH(d, a, b, c, x[4], S32, 0x4BDECFA9)  #  38
+    c = HH(c, d, a, b, x[7], S33, 0xF6BB4B60)  #  39
+    b = HH(b, c, d, a, x[10], S34, 0xBEBFBC70)  # 40
+    a = HH(a, b, c, d, x[13], S31, 0x289B7EC6)  # 41
+    d = HH(d, a, b, c, x[0], S32, 0xEAA127FA)  #  42
+    c = HH(c, d, a, b, x[3], S33, 0xD4EF3085)  #  43
+    b = HH(b, c, d, a, x[6], S34, 0x4881D05)  #   44
+    a = HH(a, b, c, d, x[9], S31, 0xD9D4D039)  #  45
+    d = HH(d, a, b, c, x[12], S32, 0xE6DB99E5)  # 46
+    c = HH(c, d, a, b, x[15], S33, 0x1FA27CF8)  # 47
+    b = HH(b, c, d, a, x[2], S34, 0xC4AC5665)  #  48
+
+    # Round 4
+    a = II(a, b, c, d, x[0], S41, 0xF4292244)  #  49
+    d = II(d, a, b, c, x[7], S42, 0x432AFF97)  #  50
+    c = II(c, d, a, b, x[14], S43, 0xAB9423A7)  # 51
+    b = II(b, c, d, a, x[5], S44, 0xFC93A039)  #  52
+    a = II(a, b, c, d, x[12], S41, 0x655B59C3)  # 53
+    d = II(d, a, b, c, x[3], S42, 0x8F0CCC92)  #  54
+    c = II(c, d, a, b, x[10], S43, 0xFFEFF47D)  # 55
+    b = II(b, c, d, a, x[1], S44, 0x85845DD1)  #  56
+    a = II(a, b, c, d, x[8], S41, 0x6FA87E4F)  #  57
+    d = II(d, a, b, c, x[15], S42, 0xFE2CE6E0)  # 58
+    c = II(c, d, a, b, x[6], S43, 0xA3014314)  #  59
+    b = II(b, c, d, a, x[13], S44, 0x4E0811A1)  # 60
+    a = II(a, b, c, d, x[4], S41, 0xF7537E82)  #  61
+    d = II(d, a, b, c, x[11], S42, 0xBD3AF235)  # 62
+    c = II(c, d, a, b, x[2], S43, 0x2AD7D2BB)  #  63
+    b = II(b, c, d, a, x[9], S44, 0xEB86D391)  #  64
+
+    return [state[0] + a, state[1] + b, state[2] + c, state[3] + d]
 
 
 def main() -> None:
