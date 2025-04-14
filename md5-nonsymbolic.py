@@ -200,7 +200,7 @@ class MD5:
 
         a, b, c, d = self.state
 
-        x = self.decode(block)
+        x = decode(block)
 
         # Round 1
         a = FF(a, b, c, d, x[0], S11, 0xD76AA478)  #   1
@@ -279,41 +279,8 @@ class MD5:
         self.state[2] += c
         self.state[3] += d
 
-    @staticmethod
-    def encode(input: list[U32]) -> list[U8]:
-        outlen = len(input) * 4
-        res = [U8(0)] * outlen
-
-        i = 0
-        for j in range(0, outlen, 4):
-            res[j + 0] = U8((input[i] >> U32(0 * 8)).val)
-            res[j + 1] = U8((input[i] >> U32(1 * 8)).val)
-            res[j + 2] = U8((input[i] >> U32(2 * 8)).val)
-            res[j + 3] = U8((input[i] >> U32(3 * 8)).val)
-            i += 1
-
-        return res
-
-    @staticmethod
-    def decode(input: list[U8]) -> list[U32]:
-        assert len(input) % 4 == 0, f"Input has length {len(input)}"
-
-        res = [U32(0)] * (len(input) // 4)
-
-        i = 0
-        for j in range(0, len(input), 4):
-            res[i] = (
-                (U32.from_u8(input[j + 0]) << U32(0 * 8)) & U32(0xFFFFFFFF)
-                | (U32.from_u8(input[j + 1]) << U32(1 * 8)) & U32(0xFFFFFFFF)
-                | (U32.from_u8(input[j + 2]) << U32(2 * 8)) & U32(0xFFFFFFFF)
-                | (U32.from_u8(input[j + 3]) << U32(3 * 8)) & U32(0xFFFFFFFF)
-            )
-            i += 1
-
-        return res
-
     def final(self) -> list[U8]:
-        bits = self.encode(self.count)
+        bits = encode(self.count)
 
         index = (self.count[0].val >> 3) & 0x3F
         padLen = (56 if index < 56 else 120) - index
@@ -321,8 +288,41 @@ class MD5:
         self.update(PADDING[:padLen])
         self.update(bits)
 
-        digest = self.encode(self.state)
+        digest = encode(self.state)
         return digest
+
+
+def encode(input: list[U32]) -> list[U8]:
+    outlen = len(input) * 4
+    res = [U8(0)] * outlen
+
+    i = 0
+    for j in range(0, outlen, 4):
+        res[j + 0] = U8((input[i] >> U32(0 * 8)).val)
+        res[j + 1] = U8((input[i] >> U32(1 * 8)).val)
+        res[j + 2] = U8((input[i] >> U32(2 * 8)).val)
+        res[j + 3] = U8((input[i] >> U32(3 * 8)).val)
+        i += 1
+
+    return res
+
+
+def decode(input: list[U8]) -> list[U32]:
+    assert len(input) % 4 == 0, f"Input has length {len(input)}"
+
+    res = [U32(0)] * (len(input) // 4)
+
+    i = 0
+    for j in range(0, len(input), 4):
+        res[i] = (
+            (U32.from_u8(input[j + 0]) << U32(0 * 8)) & U32(0xFFFFFFFF)
+            | (U32.from_u8(input[j + 1]) << U32(1 * 8)) & U32(0xFFFFFFFF)
+            | (U32.from_u8(input[j + 2]) << U32(2 * 8)) & U32(0xFFFFFFFF)
+            | (U32.from_u8(input[j + 3]) << U32(3 * 8)) & U32(0xFFFFFFFF)
+        )
+        i += 1
+
+    return res
 
 
 def main() -> None:
