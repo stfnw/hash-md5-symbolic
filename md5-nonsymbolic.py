@@ -6,6 +6,11 @@
 # implementation; with macros replaced with functions.
 
 
+def main() -> None:
+    assert "b10a8db164e0754105b7a99be72e3fe5" == md5hash(b"Hello World")
+    assert "b223cca8b360eae4e49568512e2de29f" == md5hash(b"1" * 10000)
+
+
 class U32:
     def __init__(self, val: int):
         self.maxval = 0xFFFFFFFF
@@ -307,11 +312,6 @@ def transform(state: list[U32], block: list[U8]) -> list[U32]:
     b = II(b, c, d, a, x[9], S44, 0xEB86D391)  #  64
 
     return [state[0] + a, state[1] + b, state[2] + c, state[3] + d]
-
-
-def main() -> None:
-    assert "b10a8db164e0754105b7a99be72e3fe5" == md5hash(b"Hello World")
-    assert "b223cca8b360eae4e49568512e2de29f" == md5hash(b"1" * 10000)
 
 
 if __name__ == "__main__":
