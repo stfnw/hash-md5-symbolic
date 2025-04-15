@@ -154,16 +154,13 @@ class MD5:
             U32(0x98BADCFE),
             U32(0x10325476),
         ]
-        self.count = [U32(0), U32(0)]
+        self.count = 0
         self.buffer = [U8(0)] * 64
 
     def update(self, input: list[U8]) -> None:
-        index = (self.count[0].val >> 3) & 0x3F
+        index = (self.count >> 3) & 0x3F
 
-        self.count[0] += U32(len(input) << 3)
-        if self.count[0].val < (len(input) << 3):
-            self.count[1] += U32(1)
-        self.count[1] += U32(len(input) >> 29)
+        self.count += len(input) << 3
 
         partLen = 64 - index
 
@@ -184,9 +181,9 @@ class MD5:
         self.buffer[index : index + len(input) - i] = input[i : len(input)]
 
     def final(self) -> list[U8]:
-        bits = encode(self.count)
+        bits = encode([U32(self.count), U32(self.count >> 32)])
 
-        index = (self.count[0].val >> 3) & 0x3F
+        index = (self.count >> 3) & 0x3F
         padLen = (56 if index < 56 else 120) - index
 
         self.update(PADDING[:padLen])
