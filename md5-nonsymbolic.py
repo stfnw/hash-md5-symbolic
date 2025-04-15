@@ -119,31 +119,19 @@ def I(x: U32, y: U32, z: U32) -> U32:
 
 
 def FF(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    tmp1 = a + F(b, c, d) + x + U32(ac)
-    tmp2 = tmp1.rotate_left(s)
-    tmp3 = tmp2 + b
-    return tmp3
+    return (a + F(b, c, d) + x + U32(ac)).rotate_left(s) + b
 
 
 def GG(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    tmp1 = a + G(b, c, d) + x + U32(ac)
-    tmp2 = tmp1.rotate_left(s)
-    tmp3 = tmp2 + b
-    return tmp3
+    return (a + G(b, c, d) + x + U32(ac)).rotate_left(s) + b
 
 
 def HH(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    tmp1 = a + H(b, c, d) + x + U32(ac)
-    tmp2 = tmp1.rotate_left(s)
-    tmp3 = tmp2 + b
-    return tmp3
+    return (a + H(b, c, d) + x + U32(ac)).rotate_left(s) + b
 
 
 def II(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    tmp1 = a + I(b, c, d) + x + U32(ac)
-    tmp2 = tmp1.rotate_left(s)
-    tmp3 = tmp2 + b
-    return tmp3
+    return (a + I(b, c, d) + x + U32(ac)).rotate_left(s) + b
 
 
 PADDING = [U8(0)] * 64
