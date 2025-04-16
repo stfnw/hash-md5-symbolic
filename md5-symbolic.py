@@ -1,51 +1,122 @@
 #!/usr/bin/python3
 
-# Non-symbolic version based on
-# https://datatracker.ietf.org/doc/html/rfc1321. Derived from the RSA Data
-# Security, Inc. MD5 Message-Digest Algorithm. Self-contained single-file
-# implementation; with macros replaced with functions.
+# Symbolic version based on https://datatracker.ietf.org/doc/html/rfc1321.
+# Derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm.
+
+
+import z3
+from typing import Callable
+import sys
 
 
 def main() -> None:
+    # This is only needed when hashing large strings.
+    sys.set_int_max_str_digits(0)
+
+    # Sanity check that the symbolic implementation is correct by passing
+    # fully determined input.
     assert "b10a8db164e0754105b7a99be72e3fe5" == md5hash(b"Hello World")
     assert "b223cca8b360eae4e49568512e2de29f" == md5hash(b"1" * 10000)
 
 
-class U32:
-    def __init__(self, val: int):
-        self.maxval = 0xFFFFFFFF
-        self.val = self.maxval & val
+def bv_from_bytes(input: bytes, size: int | None = None) -> z3.BitVecRef:
+    n = int.from_bytes(input, byteorder="big")
+    if size is None:
+        size = len(input) * 8
+    return z3.BitVecVal(n, size)
 
-    def __str__(self) -> str:
-        return str(self.val)
 
-    def __add__(a: "U32", b: "U32") -> "U32":
-        return U32(a.val + b.val)
+def bytes_from_bv(input: z3.BitVecRef) -> bytes:
+    bitstring = z3.simplify(input).as_binary_string()
+    length = (input.size() + 7) // 8
+    return int(bitstring, 2).to_bytes(length, "big")
 
-    def __and__(a: "U32", b: "U32") -> "U32":
-        return U32(a.val & b.val)
 
-    def __or__(a: "U32", b: "U32") -> "U32":
-        return U32(a.val | b.val)
+def hex_from_bv(input: z3.BitVecRef) -> str:
+    bs = bytes_from_bv(input)
+    return bytes.hex(bs)
 
-    def __invert__(a: "U32") -> "U32":
-        return U32(~a.val)
 
-    def __xor__(a: "U32", b: "U32") -> "U32":
-        return U32(a.val ^ b.val)
+S11 = z3.BitVecVal(7, 32)
+S12 = z3.BitVecVal(12, 32)
+S13 = z3.BitVecVal(17, 32)
+S14 = z3.BitVecVal(22, 32)
+S21 = z3.BitVecVal(5, 32)
+S22 = z3.BitVecVal(9, 32)
+S23 = z3.BitVecVal(14, 32)
+S24 = z3.BitVecVal(20, 32)
+S31 = z3.BitVecVal(4, 32)
+S32 = z3.BitVecVal(11, 32)
+S33 = z3.BitVecVal(16, 32)
+S34 = z3.BitVecVal(23, 32)
+S41 = z3.BitVecVal(6, 32)
+S42 = z3.BitVecVal(10, 32)
+S43 = z3.BitVecVal(15, 32)
+S44 = z3.BitVecVal(21, 32)
 
-    def __lshift__(a: "U32", b: "U32") -> "U32":
-        return U32(a.val << b.val)
 
-    def __rshift__(a: "U32", b: "U32") -> "U32":
-        return U32(a.val >> b.val)
+def F(x: z3.BitVecRef, y: z3.BitVecRef, z: z3.BitVecRef) -> z3.BitVecRef:
+    assert x.size() == 32
+    assert y.size() == 32
+    assert z.size() == 32
+    return (x & y) | ((~x) & z)
 
-    def rotate_left(x: "U32", n: "U32") -> "U32":
-        return (x << n) | (x >> U32(32 - n.val))
 
-    @staticmethod
-    def from_u8(val: "U8") -> "U32":
-        return U32(val.val)
+def G(x: z3.BitVecRef, y: z3.BitVecRef, z: z3.BitVecRef) -> z3.BitVecRef:
+    assert x.size() == 32
+    assert y.size() == 32
+    assert z.size() == 32
+    return (x & z) | (y & (~z))
+
+
+def H(x: z3.BitVecRef, y: z3.BitVecRef, z: z3.BitVecRef) -> z3.BitVecRef:
+    assert x.size() == 32
+    assert y.size() == 32
+    assert z.size() == 32
+    return x ^ y ^ z
+
+
+def I(x: z3.BitVecRef, y: z3.BitVecRef, z: z3.BitVecRef) -> z3.BitVecRef:
+    assert x.size() == 32
+    assert y.size() == 32
+    assert z.size() == 32
+    return y ^ (x | (~z))
+
+
+def XX(
+    f: Callable[[z3.BitVecRef, z3.BitVecRef, z3.BitVecRef], z3.BitVecRef],
+    a: z3.BitVecRef,
+    b: z3.BitVecRef,
+    c: z3.BitVecRef,
+    d: z3.BitVecRef,
+    x: z3.BitVecRef,
+    s: z3.BitVecRef,
+    ac: int,
+) -> z3.BitVecRef:
+    return z3.simplify(bv_rotate_left(a + f(b, c, d) + x + z3.BitVecVal(ac, 32), s) + b)
+
+
+def FF(a, b, c, d, x, s, ac) -> z3.BitVecRef:  # type: ignore
+    return XX(F, a, b, c, d, x, s, ac)
+
+
+def GG(a, b, c, d, x, s, ac) -> z3.BitVecRef:  # type: ignore
+    return XX(G, a, b, c, d, x, s, ac)
+
+
+def HH(a, b, c, d, x, s, ac) -> z3.BitVecRef:  # type: ignore
+    return XX(H, a, b, c, d, x, s, ac)
+
+
+def II(a, b, c, d, x, s, ac) -> z3.BitVecRef:  # type: ignore
+    return XX(I, a, b, c, d, x, s, ac)
+
+
+def md5hash(val: bytes) -> str:
+    m = MD5()
+    m.update(bv_from_bytes(val))
+    digest = m.final()
+    return hex_from_bv(digest)
 
 
 class U8:
@@ -56,184 +127,127 @@ class U8:
     def __str__(self) -> str:
         return str(self.val)
 
-    def __add__(a: "U8", b: "U8") -> "U8":
-        return U8(a.val + b.val)
 
-    def __and__(a: "U8", b: "U8") -> "U8":
-        return U8(a.val & b.val)
-
-    def __or__(a: "U8", b: "U8") -> "U8":
-        return U8(a.val | b.val)
-
-    def __invert__(a: "U8") -> "U8":
-        return U8(~a.val)
-
-    def __xor__(a: "U8", b: "U8") -> "U8":
-        return U8(a.val ^ b.val)
-
-    def __lshift__(a: "U8", b: "U8") -> "U8":
-        return U8(a.val << b.val)
-
-    def __rshift__(a: "U8", b: "U8") -> "U8":
-        return U8(a.val >> b.val)
-
-    def rotate_left(x: "U8", n: "U8") -> "U8":
-        return (x << n) | (x >> U8(32 - n.val))
-
-
-def frombytes(input: bytes) -> list[U8]:
-    return [U8(b) for b in input]
-
-
-def tobytes(input: list[U8]) -> bytes:
-    return bytes([b.val for b in input])
-
-
-S11: U32 = U32(7)
-S12: U32 = U32(12)
-S13: U32 = U32(17)
-S14: U32 = U32(22)
-S21: U32 = U32(5)
-S22: U32 = U32(9)
-S23: U32 = U32(14)
-S24: U32 = U32(20)
-S31: U32 = U32(4)
-S32: U32 = U32(11)
-S33: U32 = U32(16)
-S34: U32 = U32(23)
-S41: U32 = U32(6)
-S42: U32 = U32(10)
-S43: U32 = U32(15)
-S44: U32 = U32(21)
-
-
-def F(x: U32, y: U32, z: U32) -> U32:
-    return (x & y) | ((~x) & z)
-
-
-def G(x: U32, y: U32, z: U32) -> U32:
-    return (x & z) | (y & (~z))
-
-
-def H(x: U32, y: U32, z: U32) -> U32:
-    return x ^ y ^ z
-
-
-def I(x: U32, y: U32, z: U32) -> U32:
-    return y ^ (x | (~z))
-
-
-def FF(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    return (a + F(b, c, d) + x + U32(ac)).rotate_left(s) + b
-
-
-def GG(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    return (a + G(b, c, d) + x + U32(ac)).rotate_left(s) + b
-
-
-def HH(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    return (a + H(b, c, d) + x + U32(ac)).rotate_left(s) + b
-
-
-def II(a: U32, b: U32, c: U32, d: U32, x: U32, s: U32, ac: int) -> U32:
-    return (a + I(b, c, d) + x + U32(ac)).rotate_left(s) + b
-
-
-PADDING = [U8(0)] * 64
-PADDING[0] = U8(0x80)
-
-
-def md5hash(val: bytes) -> str:
-    m = MD5()
-    m.update(frombytes(val))
-    digest = m.final()
-    return bytes.hex(tobytes(digest))
+# Note that padding depends only on the input length, which is known beforehand
+# on each run => we don't need to use z3's symbolic BitVec type for this.
+PADDING = b"\x80" + b"\x00" * 63
 
 
 class MD5:
 
     def __init__(self) -> None:
         self.state = [
-            U32(0x67452301),
-            U32(0xEFCDAB89),
-            U32(0x98BADCFE),
-            U32(0x10325476),
+            z3.BitVecVal(0x67452301, 32),
+            z3.BitVecVal(0xEFCDAB89, 32),
+            z3.BitVecVal(0x98BADCFE, 32),
+            z3.BitVecVal(0x10325476, 32),
         ]
         self.count = 0
-        self.buffer = [U8(0)] * 64
+        self.buffer = z3.BitVecVal(0, 64 * 8)
 
-    def update(self, input: list[U8]) -> None:
-        index = (self.count >> 3) & 0x3F
+    def update(self, input: z3.BitVecRef) -> None:
+        assert input.size() % 8 == 0
+        index = self.count & 0x1FF
 
-        self.count += len(input) << 3
+        self.count += input.size()
 
-        partLen = 64 - index
+        partLen = 512 - index
 
-        if len(input) >= partLen:
-            self.buffer[index : index + partLen] = input[:partLen]
+        assert self.count % 8 == 0
+        assert index % 8 == 0
+        assert partLen % 8 == 0
+
+        if input.size() >= partLen:
+            self.buffer = bv_memcpy(
+                self.buffer,
+                z3.Extract(partLen - 1, 0, input),
+                index,
+                partLen,
+            )
             self.state = transform(self.state, self.buffer)
 
             i = partLen
-            while i + 63 < len(input):
-                self.state = transform(self.state, input[i : i + 64])
-                i += 64
+            while i + 512 - 1 < input.size():
+                self.state = transform(self.state, z3.Extract(i + 512 - 1, i, input))
+                i += 512
 
             index = 0
 
         else:
             i = 0
 
-        self.buffer[index : index + len(input) - i] = input[i : len(input)]
+        if input.size() - i != 0:
+            self.buffer = bv_memcpy(
+                self.buffer,
+                z3.Extract(input.size() - 1, i, input),
+                index,
+                input.size() - i,
+            )
 
-    def final(self) -> list[U8]:
-        bits = encode([U32(self.count), U32(self.count >> 32)])
+    def final(self) -> z3.BitVecRef:
+        bits = encode(
+            [z3.BitVecVal(self.count, 32), z3.BitVecVal(self.count >> 32, 32)]
+        )
 
         index = (self.count >> 3) & 0x3F
         padLen = (56 if index < 56 else 120) - index
 
-        self.update(PADDING[:padLen])
+        self.update(bv_from_bytes(PADDING[:padLen]))
         self.update(bits)
 
         digest = encode(self.state)
         return digest
 
 
-def encode(input: list[U32]) -> list[U8]:
-    outlen = len(input) * 4
-    res = [U8(0)] * outlen
+# def encode(input: list[U32]) -> list[U8]:
+def encode(input: list[z3.BitVecRef]) -> z3.BitVecRef:
+    for e in input:
+        assert e.size() % 32 == 0
+
+    outlen = len(input) * 32
+    res = z3.BitVecVal(0, outlen)
 
     i = 0
-    for j in range(0, outlen, 4):
-        res[j + 0] = U8((input[i] >> U32(0 * 8)).val)
-        res[j + 1] = U8((input[i] >> U32(1 * 8)).val)
-        res[j + 2] = U8((input[i] >> U32(2 * 8)).val)
-        res[j + 3] = U8((input[i] >> U32(3 * 8)).val)
+    for j in range(0, outlen, 32):
+        res = bv_memcpy(res, z3.Extract(1 * 8 - 1, 0 * 8, input[i]), j + 0 * 8, 8)
+        res = bv_memcpy(res, z3.Extract(2 * 8 - 1, 1 * 8, input[i]), j + 1 * 8, 8)
+        res = bv_memcpy(res, z3.Extract(3 * 8 - 1, 2 * 8, input[i]), j + 2 * 8, 8)
+        res = bv_memcpy(res, z3.Extract(4 * 8 - 1, 3 * 8, input[i]), j + 3 * 8, 8)
         i += 1
+
+    res = z3.simplify(res)
 
     return res
 
 
-def decode(input: list[U8]) -> list[U32]:
-    assert len(input) % 4 == 0, f"Input has length {len(input)}"
+# def decode(input: list[U8]) -> list[U32]:
+def decode(input: z3.BitVecRef) -> list[z3.BitVecRef]:
+    assert input.size() % 32 == 0, f"Input has length {len(input)}"
 
-    res = [U32(0)] * (len(input) // 4)
+    res = [z3.BitVecVal(0, 32) for _ in range(input.size() // 32)]
 
-    i = 0
-    for j in range(0, len(input), 4):
-        res[i] = (
-            (U32.from_u8(input[j + 0]) << U32(0 * 8)) & U32(0xFFFFFFFF)
-            | (U32.from_u8(input[j + 1]) << U32(1 * 8)) & U32(0xFFFFFFFF)
-            | (U32.from_u8(input[j + 2]) << U32(2 * 8)) & U32(0xFFFFFFFF)
-            | (U32.from_u8(input[j + 3]) << U32(3 * 8)) & U32(0xFFFFFFFF)
-        )
-        i += 1
+    i = len(res) - 1
+    for j in range(0, input.size(), 32):
+        res[i] |= z3.ZeroExt(24, z3.Extract(j + 1 * 8 - 1, j + 0 * 8, input)) << (3 * 8)
+        res[i] |= z3.ZeroExt(24, z3.Extract(j + 2 * 8 - 1, j + 1 * 8, input)) << (2 * 8)
+        res[i] |= z3.ZeroExt(24, z3.Extract(j + 3 * 8 - 1, j + 2 * 8, input)) << (1 * 8)
+        res[i] |= z3.ZeroExt(24, z3.Extract(j + 4 * 8 - 1, j + 3 * 8, input)) << (0 * 8)
+        i -= 1
+
+    res = [z3.simplify(el) for el in res]
 
     return res
 
 
-def transform(state: list[U32], block: list[U8]) -> list[U32]:
+def transform(state: list[z3.BitVecRef], block: z3.BitVecRef) -> list[z3.BitVecRef]:
     assert len(state) == 4, f"State has length f{len(block)}"
-    assert len(block) == 64, f"Block has length f{len(block)}"
+    assert (
+        state[0].size() == 32
+        and state[1].size() == 32
+        and state[2].size() == 32
+        and state[3].size() == 32
+    )
+    assert block.size() == 64 * 8, f"Block has length f{block.size()}"
 
     a, b, c, d = state
 
@@ -312,6 +326,39 @@ def transform(state: list[U32], block: list[U8]) -> list[U32]:
     b = II(b, c, d, a, x[9], S44, 0xEB86D391)  #  64
 
     return [state[0] + a, state[1] + b, state[2] + c, state[3] + d]
+
+
+# Replace part of a bit vector with another bit vector.
+# Treats bitvectors as big endian bit arrays
+def bv_memcpy(
+    dst: z3.BitVecRef, src: z3.BitVecRef, ifrom: int, length: int
+) -> z3.BitVecRef:
+    assert length > 0
+    assert src.size() == length
+    assert ifrom + length <= dst.size()  # both are exclusive of the last position
+
+    # endianness
+    ifrom, ito = dst.size() - (ifrom + length), dst.size() - ifrom
+
+    # mask in big-endian bit representation
+    #    ifrom     ito
+    #        |     |
+    # ...111 0...0 111...
+    mask = 0
+    mask |= (1 << ifrom) - 1  #  LSBs
+    mask |= ~((1 << ito) - 1)  # MSBs
+
+    new = z3.ZeroExt(dst.size() - src.size(), src)
+    new = new << ifrom
+
+    dst = dst & mask  # clear range
+    dst = dst | new  #  assign new value
+
+    return z3.simplify(dst)
+
+
+def bv_rotate_left(x: z3.BitVecRef, n: z3.BitVecRef) -> z3.BitVecRef:
+    return (x << n) | z3.LShR(x, (x.size() - n))
 
 
 if __name__ == "__main__":
