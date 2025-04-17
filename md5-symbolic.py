@@ -8,15 +8,42 @@ import z3
 from typing import Callable
 import sys
 
+MD5_HASH_BITLEN = 128
+
 
 def main() -> None:
     # This is only needed when hashing large strings.
     sys.set_int_max_str_digits(0)
+    z3.set_param(verbose=2)
 
     # Sanity check that the symbolic implementation is correct by passing
     # fully determined input.
-    assert "b10a8db164e0754105b7a99be72e3fe5" == md5hash(b"Hello World")
-    assert "b223cca8b360eae4e49568512e2de29f" == md5hash(b"1" * 10000)
+    # assert "b10a8db164e0754105b7a99be72e3fe5" == md5hash_(b"Hello World")
+    # assert "b223cca8b360eae4e49568512e2de29f" == md5hash_(b"1" * 10000)
+    # => that works
+
+    data = z3.BitVec("data", MD5_HASH_BITLEN + 8)
+    print(
+        f"[+] Constructing bitvector of {data.size()} bits "
+        + "and the symbolic hash computation for it"
+    )
+    hash = md5hash(data)
+
+    print("[+] Adding additional constraints to the solver")
+    s = z3.Solver()
+
+    # Find message whose checksum ends with one null byte.
+    s.add(z3.Extract(7, 0, hash) == z3.BitVecVal(0, 8))
+
+    print("[+] Checking for boolean satisfiability")
+    if s.check() == z3.sat:
+        print("[+] Found valid model")
+
+        m = s.model()
+        dataval = m.evaluate(data)
+
+        print(f"    Data hex: {hex_from_bv(dataval)}")
+        print(f"    MD5 hash: {hex_from_bv(m.evaluate(hash))}")
 
 
 def bv_from_bytes(input: bytes, size: int | None = None) -> z3.BitVecRef:
@@ -112,7 +139,13 @@ def II(a, b, c, d, x, s, ac) -> z3.BitVecRef:  # type: ignore
     return XX(I, a, b, c, d, x, s, ac)
 
 
-def md5hash(val: bytes) -> str:
+def md5hash(data: z3.BitVecRef) -> z3.BitVecRef:
+    m = MD5()
+    m.update(data)
+    return z3.simplify(m.final())
+
+
+def md5hash_(val: bytes) -> str:
     m = MD5()
     m.update(bv_from_bytes(val))
     digest = m.final()
