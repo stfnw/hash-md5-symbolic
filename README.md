@@ -20,3 +20,4 @@ d7f3e5299129e1adfbc1e8a2edbcea00  -
 | Input                              | Hash                             | Comment                               |
 |------------------------------------|----------------------------------|---------------------------------------|
 | 59db262ae923f6bed376763799172b93ca | d7f3e5299129e1adfbc1e8a2edbcea00 | hash ends in one null-byte            |
+| 759beb48cd35dd4424f5afca2b333dec1a | 00e1b0ea98eaa5289136e4ad2bdcd78b | hash starts with one null-byte        |

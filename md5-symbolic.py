@@ -33,7 +33,13 @@ def main() -> None:
     s = z3.Solver()
 
     # Find message whose checksum ends with one null byte.
-    s.add(z3.Extract(7, 0, hash) == z3.BitVecVal(0, 8))
+    # s.add(z3.Extract(7, 0, hash) == z3.BitVecVal(0, 8))
+
+    # Find message whose checksum starts with one null byte.
+    s.add(
+        z3.Extract(MD5_HASH_BITLEN - 1, MD5_HASH_BITLEN - 8, hash)
+        == z3.BitVecVal(0, 8)
+    )
 
     print("[+] Checking for boolean satisfiability")
     if s.check() == z3.sat:
