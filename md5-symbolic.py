@@ -36,9 +36,16 @@ def main() -> None:
     # s.add(z3.Extract(7, 0, hash) == z3.BitVecVal(0, 8))
 
     # Find message whose checksum starts with one null byte.
+    # s.add(
+    #     z3.Extract(MD5_HASH_BITLEN - 1, MD5_HASH_BITLEN - 8, hash)
+    #     == z3.BitVecVal(0, 8)
+    # )
+
+    # Find message whose checksum starts and ends with four null bits.
+    s.add(z3.Extract(4 - 1, 0, hash) == z3.BitVecVal(0, 4))
     s.add(
-        z3.Extract(MD5_HASH_BITLEN - 1, MD5_HASH_BITLEN - 8, hash)
-        == z3.BitVecVal(0, 8)
+        z3.Extract(MD5_HASH_BITLEN - 1, MD5_HASH_BITLEN - 4, hash)
+        == z3.BitVecVal(0, 4)
     )
 
     print("[+] Checking for boolean satisfiability")
