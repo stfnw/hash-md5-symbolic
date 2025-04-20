@@ -30,7 +30,6 @@ def main() -> None:
     hash = md5hash(data)
 
     print("[+] Adding additional constraints to the solver")
-    s = z3.Solver()
 
     # Find message whose checksum ends with one null byte.
     # s.add(z3.Extract(7, 0, hash) == z3.BitVecVal(0, 8))
@@ -42,21 +41,29 @@ def main() -> None:
     # )
 
     # Find message whose checksum starts and ends with four null bits.
-    s.add(z3.Extract(4 - 1, 0, hash) == z3.BitVecVal(0, 4))
-    s.add(
-        z3.Extract(MD5_HASH_BITLEN - 1, MD5_HASH_BITLEN - 4, hash)
-        == z3.BitVecVal(0, 4)
-    )
+    # s.add(z3.Extract(4 - 1, 0, hash) == z3.BitVecVal(0, 4))
+    # s.add(
+    #     z3.Extract(MD5_HASH_BITLEN - 1, MD5_HASH_BITLEN - 4, hash)
+    #     == z3.BitVecVal(0, 4)
+    # )
 
-    print("[+] Checking for boolean satisfiability")
-    if s.check() == z3.sat:
-        print("[+] Found valid model")
+    # Find message whose checksum ends with two null bytes.
+    # s.add(z3.Extract(2 * 8 - 1, 0, hash) == z3.BitVecVal(0, 2 * 8))
 
-        m = s.model()
-        dataval = m.evaluate(data)
+    for i in range(4):
+        s = z3.Solver()
 
-        print(f"    Data hex: {hex_from_bv(dataval)}")
-        print(f"    MD5 hash: {hex_from_bv(m.evaluate(hash))}")
+        # Iterate null-nibbles.
+        s.add(z3.Extract(4 * (i + 1) - 1, 4 * i, hash) == z3.BitVecVal(0, 4))
+        print("[+] Checking for boolean satisfiability")
+        if s.check() == z3.sat:
+            print("[+] Found valid model")
+
+            m = s.model()
+            dataval = m.evaluate(data)
+
+            print(f"    Data hex: {hex_from_bv(dataval)}")
+            print(f"    MD5 hash: {hex_from_bv(m.evaluate(hash))}")
 
 
 def bv_from_bytes(input: bytes, size: int | None = None) -> z3.BitVecRef:
