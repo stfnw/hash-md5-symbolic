@@ -54,7 +54,11 @@ def main() -> None:
         s = z3.Solver()
 
         # Iterate null-nibbles.
-        s.add(z3.Extract(4 * (i + 1) - 1, 4 * i, hash) == z3.BitVecVal(0, 4))
+        # s.add(z3.Extract(4 * (i + 1) - 1, 4 * i, hash) == z3.BitVecVal(0, 4))
+
+        # Iterate null-bytes.
+        s.add(z3.Extract(8 * (i + 1) - 1, 8 * i, hash) == z3.BitVecVal(0, 8))
+
         print("[+] Checking for boolean satisfiability")
         if s.check() == z3.sat:
             print("[+] Found valid model")

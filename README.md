@@ -59,3 +59,24 @@ Some hashes were the i-th nibble is zero:
 | `8a42216503c09cdef7c8d2b7e6afbfc902` | `dd696f37baea336bea3a2784b2b54.0d4` |
 | `b26738d8b290586204740cd5a2d27003df` | `37caff1f7cd897c7a445b31a147f17.0e` |
 | `ece2f62823dc94aec24d497d186f87e89a` | `cc1666af0cce0d0379b332d66fe4b9b.0` |
+
+Some hashes were the i-th byte is zero:
+
+| Input                              | Hash                                 |
+|------------------------------------|--------------------------------------|
+| `e6cb4a7a8637bf2306ea5e5fb0134ff5ea` | `0041d7ab5a1cbbc9a42856e6d186ff6c` |
+| `c5abdd26381dbe82bf3b0ed30fb452c5b3` | `9400e1ff3b87654db09d2574794800b2` |
+| `4baf8ddfa7c45a6db264921b57698169fe` | `32be00bea4f660a6ff3a2e07cc326f8a` |
+| `aa7b839e3c18153053ed66159bb6857d73` | `3323f200a234991a00a1c15550bf6005` |
+| `0d92f2b909e61519a676406da772ccf97a` | `e505170300fe041df8d93aa5b310e85a` |
+| `f8b11cd7863ff53471b9fe3cff8da65937` | `c358bcb2f00078baca82533f5af51de8` |
+| `2820ab9ba0e2aa82cda384015dff5a36fb` | `c46e470f849100d147aeb40c77840434` |
+| `15d96fc251dfdcfa9571e613d591ef8958` | `6ddf764eec76e600380910e9edb1247f` |
+| `79b3a79d9822ff6bb29404ad217e901d03` | `9cd7695f4842a13a00ec1a0512330b2b` |
+| `2c2d85ccedd59d703064ed5b0ad65eaf08` | `58fef5397521949f710055e4c2673049` |
+| `9ed8e7f9a84827b50e4990cea221dd1b6d` | `6aa7c52977a2d6bb3ee000b269aca80d` |
+| `188be9e3d617fa66fcd3faab4f21a171d9` | `6cba9b5b43c1ae9d8c6f7400c84b4214` |
+| `521c3a9849bd24123bf9917dc98e5937d8` | `3256393fe813cef08c8233df0079eb7e` |
+| `8b3f36073463da2dacbb05aae0b185824c` | `a0e9696c49d24e74d606998c63007051` |
+| `128877b68e3ec1b3aa44e92f3abb41107d` | `29c9d7d6b157a93721987836b56200ae` |
+| `a24746e7b1efc1c95ab9d2f0e8891cc4ff` | `bc734430bb52c5d49b85e1a865a98600` |
