@@ -57,7 +57,14 @@ def main() -> None:
         # s.add(z3.Extract(4 * (i + 1) - 1, 4 * i, hash) == z3.BitVecVal(0, 4))
 
         # Iterate null-bytes.
-        s.add(z3.Extract(8 * (i + 1) - 1, 8 * i, hash) == z3.BitVecVal(0, 8))
+        # s.add(z3.Extract(8 * (i + 1) - 1, 8 * i, hash) == z3.BitVecVal(0, 8))
+
+        # Same 4-bit value in input and output at same position.
+        s.add(
+            z3.Extract(4 * (i + 1) - 1, 4 * i, hash)
+            == z3.Extract(4 * (i + 3) - 1, 4 * (i + 2), data)
+        )
+
 
         print("[+] Checking for boolean satisfiability")
         if s.check() == z3.sat:

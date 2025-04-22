@@ -80,3 +80,135 @@ Some hashes were the i-th byte is zero:
 | `8b3f36073463da2dacbb05aae0b185824c` | `a0e9696c49d24e74d606998c63007051` |
 | `128877b68e3ec1b3aa44e92f3abb41107d` | `29c9d7d6b157a93721987836b56200ae` |
 | `a24746e7b1efc1c95ab9d2f0e8891cc4ff` | `bc734430bb52c5d49b85e1a865a98600` |
+
+Some hashes were the i-th nibble in the input and the hash are the same:
+
+```
+       |
+Input: adc3822adc60266c6da6fe411b17238b03
+Hash:  a7d364da10e5c920d31f31fda3b483ec
+
+        |
+Input: 917bb8a51b6422af6f52859fb303741603
+Hash:  a1d4ab369fa7e69e39a5a8c6b21d7ab8
+
+         |
+Input: 1798ae2940b0cf016cefd50521b11914bc
+Hash:  d89227dbb5f303a438ce4788d93d1fbb
+
+          |
+Input: d0843c0ee5899e84c96e0e3d57e920b5fe
+Hash:  21f4004a18b52e0cb4764125ef0db96e
+
+           |
+Input: ea06379f9cd7297bf366185cbc7fdefdaf
+Hash:  f2733b7e8c2a224ebc621e60574b2c3b
+
+            |
+Input: 97b975f31caf8d09459ac1e38146f29af1
+Hash:  5a8f554d1349afbf45a6c99bd08c07a0
+
+             |
+Input: 881e0b695978c6397eda545a896080bff7
+Hash:  bd695e69b94a8bf890a699eba0c3edde
+
+              |
+Input: 9a8cf726ce1b74ed9ec77e324fced630cc
+Hash:  b4b56e0684c5a25586f824ab1a95e316
+
+               |
+Input: 693a0741e01db7b379abb31643aeca54a3
+Hash:  93cc95f2ebad38d3da453272788d31e6
+
+                |
+Input: 3f9c8c6c2d9da36449fe299ca8ed6723ff
+Hash:  bab172213dc6f1f774bc5ab90802a5e0
+
+                 |
+Input: d053e27fb9f9144810b35beec6a7a49fcd
+Hash:  7fe44498c6f4443c477ae8580604e5bf
+
+                  |
+Input: 24026e346c6247d0eb20319ac17b84f8da
+Hash:  fd230658cbf22cd5af3a9e6b28f4ee9b
+
+                   |
+Input: 8e2b58c3a519b45f9ef77141f70121620a
+Hash:  bfa7242d8a63b2fb2b6de44e8a5ce93c
+
+                    |
+Input: 918008b25574c5aee9c76658fdaf694ef5
+Hash:  b016bc9930c2d5959a72e3ead6f62d52
+
+                     |
+Input: 915d6f4bb8ab545a609da8dfdcb69e3f33
+Hash:  828f898347d33c50400989c755a6d8ff
+
+                      |
+Input: a3c564323de1a538a2c7787dbcdfb602a7
+Hash:  16eb92bc4b6e4bd845987be03c198e2a
+
+                       |
+Input: 9952a252b4b9e1df5d639b3c55e5e4d721
+Hash:  40b44bd91dee9784530b9c9a648c0274
+
+                        |
+Input: 90bcc10c54035b71b3ac373bc4d8bab5ff
+Hash:  0874c9a97591fc4983afddaa5366396b
+
+                         |
+Input: 867ff5e8f936584d0383789dd98b633da9
+Hash:  dd7f2df10409aedc588378003779d144
+
+                          |
+Input: 91c0b288853a1f447ba09b931b4213d3d4
+Hash:  f7088073219ea39a2af0faa4a2679029
+
+                           |
+Input: 62c9207b4e01563f65dd6b8b121bdb33f3
+Hash:  e55bc4e0df0886e4cf9663674444c989
+
+                            |
+Input: 9b8c0a2d5763ac112655f303d10b85116a
+Hash:  131133473aa85253ad5d13aa58094a56
+
+                             |
+Input: 5ffac6f08ff38170252d83f8cb8bfa5fff
+Hash:  89581d00c97442d9559e91ff2d2f437d
+
+                              |
+Input: 9af0d57c7e338cfcb7949bc5b168ad2aba
+Hash:  dbd63e6176c25920560d0a85a937bb04
+
+                               |
+Input: 10a69d9126593f79b89ca4a84694fd47a5
+Hash:  b1c16addc5c18339255b50e9486f3f1a
+
+                                |
+Input: 73676f94b70d732b8fd19e7598527715cb
+Hash:  8b0139171ac367043fbf444c581d6093
+
+                                 |
+Input: 880bd6f8aa919584d52a0c0729604e22e3
+Hash:  f2b9c4930b3a99de130c6ce74d6dc25f
+
+                                  |
+Input: dd0fe25f303c760b4619a80cba0b583e08
+Hash:  040c9c23fd5279ca0729e0bdd83b21a1
+
+                                   |
+Input: e68fa487ebb352156773cf02d35ba11223
+Hash:  f20d2ee4927be8130130e0738e5fa46a
+
+                                    |
+Input: 1a5be0ca08be7810a7386455ae89b71bbe
+Hash:  c1198deec455d115069488b91abf1744
+
+                                     |
+Input: 876b6811d0d524a4d8c24f5722fd1d77ea
+Hash:  216233bde02c00433d6254726e82e277
+
+                                      |
+Input: 4fcbd20a486451d030dfa12e1043fda626
+Hash:  cd547ca8c06262320dd5873c2a4dcca6
+```
