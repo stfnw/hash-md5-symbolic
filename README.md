@@ -212,3 +212,71 @@ Hash:  216233bde02c00433d6254726e82e277
 Input: 4fcbd20a486451d030dfa12e1043fda626
 Hash:  cd547ca8c06262320dd5873c2a4dcca6
 ```
+
+Some examples were the i-th byte in the input and the hash are the same:
+
+```
+       ||
+Input: 04e302b081f232d581a69cae70f92b9709
+Hash:  049f7e1b774a71e41ab23581d125b0bc
+
+         ||
+Input: 65714551c91c2f0859c6e0944cccc9c7d4
+Hash:  7a71d467fd4b2882050e1ac540663d57
+
+           ||
+Input: 838df766cae5274e7caf11660fb74b8f01
+Hash:  1663f7dc23057d75919948621d3ea777
+
+             ||
+Input: 0353d49a792756d15cbabba3265529501b
+Hash:  7def429a64b018e0e54f716d402022f4
+
+               ||
+Input: 70799e844efd0ea768ed3c3a946378e9b9
+Hash:  8308aada4e3cdf53294f4fcaa64ffad0
+
+                 ||
+Input: bfccb2d6b0634419e02c68f6bb334263f6
+Hash:  6f2dd494fb63bd57b805d06cb66cab89
+
+                   ||
+Input: 89dcba295dc4544c08fbec1360ba5fc1c6
+Hash:  10ce2c5cccc8543bd08d38fe688fcc25
+
+                     ||
+Input: d1080c3b8e646d50d5009406a5525f0500
+Hash:  dca2599d4ddc58504195c5cb4b555cbe
+
+                       ||
+Input: aadeda28600b66256f46fcd5da24df54e2
+Hash:  ee391d74e4cdf3eb6f9102cbb9a8a728
+
+                         ||
+Input: a65d05a77dc5cdc1de2b5bbea552bd9aff
+Hash:  342b9d5ab63a40d78b2bdbe940563a09
+
+                           ||
+Input: cf8b232c3a7283425dfaf27dc739f60446
+Hash:  a09f3d1c04d5ddf573d6f26c048da1bf
+
+                             ||
+Input: 19757e09dda38b4a240a8f059c3fb0cec7
+Hash:  2ac8c969921122c02aca870551eaf738
+
+                               ||
+Input: e55878e97a5f98f02026eba47f7fbeefa6
+Hash:  ff79f262661633a95a88f9e37f0fe8ed
+
+                                 ||
+Input: 2f30ac27471e67484db9e3335f4ac98c2f
+Hash:  3149256a2f59f3a155c9060ee04a05e7
+
+                                   ||
+Input: 92eb88a57bc93544aff33558e691dc74ff
+Hash:  4e511f8c7e57774ff4419f6ecb14dcb3
+
+                                     ||
+Input: e10d21c55b425d4196c725aef07e7f5ef3
+Hash:  52bd1f3ec230ac989bec6284074de25e
+```
