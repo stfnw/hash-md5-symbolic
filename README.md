@@ -280,3 +280,39 @@ Hash:  4e511f8c7e57774ff4419f6ecb14dcb3
 Input: e10d21c55b425d4196c725aef07e7f5ef3
 Hash:  52bd1f3ec230ac989bec6284074de25e
 ```
+
+Some examples were the i-th two-byte-sequence in the input and the hash are the same:
+
+```
+         ||||
+Input: d690fd4750cd7b8a813fc95973c26919fd
+Hash:    90fd26548fd4a6255bde738592ce6336
+
+             ||||
+Input: e9ce712d073f5838ea35f7c4fc20ed966d
+Hash:    ae842d07ec187b3b7f9aaa4a496e5d5e
+
+                 ||||
+Input: 6b4d5d021c3edda9194b58e2ce79c6e92e
+Hash:    0ea9e07b3edda4a0eae63c4c59969328
+
+                     ||||
+Input: bd670628798b7c8d7e9848f687792a661a
+Hash:    1b834bf8ec248d7e95d1ec167fc96b39
+
+                         ||||
+Input: 6836d3e392c7486022381a6b743c9a55d7
+Hash:    40f863575a8b6f52381a01bab2293b16
+
+                             ||||
+Input: 45cdcedeb9ea0551e6a9dd7d0654166340
+Hash:    b1275b41b25a260534e77d0674bd1e36
+
+                                 ||||
+Input: fb55d16a235a855ae2051354c3d320da3a
+Hash:    b20e668d776444deb5e4e77fd320cbc6
+
+                                     ||||
+Input: f8d94949e00baaf449bb00271364e00caa
+Hash:    52d24d20b73b5bb77206183dd28c0caa
+```
