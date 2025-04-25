@@ -1,5 +1,10 @@
 #!/usr/bin/python3
 
+# SPDX-FileCopyrightText: 2011 Original C code: IETF Trust and the persons identified as the document authors. All rights reserved.
+# SPDX-FileCopyrightText: 2025 Rewrite in python: stfnw
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 # Symbolic version based on https://datatracker.ietf.org/doc/html/rfc1321.
 # Derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm.
 
