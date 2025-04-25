@@ -76,7 +76,7 @@ def main() -> None:
         #     == z3.Extract(8 * (i + 2) - 1, 8 * (i + 1), data)
         # )
 
-        Same two-byte value in input and output at same position.
+        # Same two-byte value in input and output at same position.
         s.add(
             z3.Extract(16 * (i + 1) - 1, 16 * i, hash)
             == z3.Extract(16 * (i + 1) - 1, 16 * i, data)
